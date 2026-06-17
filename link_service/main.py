@@ -85,7 +85,6 @@ async def post_url_for_user(
         except httpx.RequestError:
             raise HTTPException(status_code=503, detail="User service unavailable")
 
-    # Создаём ссылку
     result = await db.Add_user_link(user_id, str(url_data.url))
 
     return JSONResponse(
@@ -133,6 +132,24 @@ async def redirect_to_url(short_code: str, db: DBHelper = Depends(get_db)):
     await db.update_clicks(short_code)
     return RedirectResponse(url=original, status_code=302)
     
+# function deletter url for user
+@app.delete("/user/{user_id}/url/{short_code}")
+async def delete_user_urls(user_id: str, short_code: str, db: DBHelper = Depends(get_db), user_service_url: str = Depends(get_user_service_url)
+) -> JSONResponse:
+
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.get(f"{user_service_url}/user/{user_id}")
+            if response.status_code == 404:
+                raise HTTPException(status_code=404, detail="User not found")
+            response.raise_for_status()
+        except httpx.RequestError:
+            raise HTTPException(status_code=503, detail="User service unavailable")
+    try:
+        await db.Delete_user_link(user_id, short_code)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    return JSONResponse(content={"user_id": user_id, "short_code_deleted": short_code}, status_code=200)
 
 
 # functions for exceptions

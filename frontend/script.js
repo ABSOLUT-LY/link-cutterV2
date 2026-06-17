@@ -1,5 +1,6 @@
 const USER_API = "http://192.168.3.124:8001";
 const LINK_API = "http://192.168.3.124:8000";
+const BASE_URL = "http://192.168.3.124:8000";
 
 function showResult(text) {
     const container = document.getElementById('result-container');
@@ -76,7 +77,9 @@ async function createLink() {
         const text = await res.text();
 
         if (res.status === 201 || res.status === 200) {
-            showResult(`✅ Ссылка создана!\n${text}`);
+            const data = JSON.parse(text);
+            const shortUrl = `${BASE_URL}/${data.short_code}`;
+            showResult(`✅ Ссылка создана!\n🔗 <a href="${shortUrl}" target="_blank">${shortUrl}</a>`);
             document.getElementById('link_user').value = '';
             document.getElementById('original_url').value = '';
         } else if (res.status === 404) {
@@ -106,15 +109,56 @@ async function listLinks() {
             }
             let html = `<h4>Ссылки пользователя "${user}":</h4><ul style="list-style:none;padding:0;">`;
             links.forEach(link => {
-                html += `<li style="background:#f1f5f9;padding:10px;margin:8px 0;border-radius:8px;">
-                            🔗 <strong>${link.short_code}</strong> 
-                            → <a href="${link.original_url}" target="_blank" style="color:#3498db;word-break:break-all;">${link.original_url.slice(0,60)}...</a>
-                         </li>`;
+                const shortUrl = `${BASE_URL}/${link.short_code}`;
+                html += `
+                    <li style="background:#f1f5f9;padding:10px;margin:8px 0;border-radius:8px;display:flex;justify-content:space-between;align-items:center;">
+                        <div>
+                            🔗 <strong><a href="${shortUrl}" target="_blank">${shortUrl}</a></strong>
+                            <br><small style="color:#888;">→ ${link.original_url.slice(0,50)}...</small>
+                        </div>
+                        <button onclick="deleteLinkByCode('${user}', '${link.short_code}')" 
+                                style="background-color:#e74c3c;color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:0.8rem;">
+                            🗑️
+                        </button>
+                    </li>
+                `;
             });
             html += `</ul>`;
             showResult(html);
         } else {
             showResult(`❌ ${data.detail || 'Ошибка'}`);
+        }
+    } catch (err) {
+        showResult(`💥 Ошибка сети: ${err.message}`);
+    }
+}
+
+
+async function deleteLink() {
+    const user = document.getElementById('delete_link_user').value;
+    const shortCode = document.getElementById('delete_link_code').value;
+    if (!user || !shortCode) return alert("Заполните оба поля");
+
+    await deleteLinkByCode(user, shortCode);
+    document.getElementById('delete_link_user').value = '';
+    document.getElementById('delete_link_code').value = '';
+}
+
+async function deleteLinkByCode(user, shortCode) {
+    try {
+        const res = await fetch(`${LINK_API}/user/${user}/url/${shortCode}`, { method: 'DELETE' });
+        const text = await res.text();
+
+        if (res.status === 200) {
+            showResult(`✅ Ссылка "${shortCode}" удалена!`);
+            const listUser = document.getElementById('list_user').value;
+            if (listUser === user) {
+                await listLinks();
+            }
+        } else if (res.status === 404) {
+            showResult(`❌ Ссылка "${shortCode}" не найдена.`);
+        } else {
+            showResult(`❌ Ошибка ${res.status}: ${text}`);
         }
     } catch (err) {
         showResult(`💥 Ошибка сети: ${err.message}`);
@@ -147,7 +191,6 @@ function renderUsers(users) {
         `<span class="user-tag">👤 ${u.user_id} <small style="color:#999;">(${u.created_at?.slice(0,10)})</small></span>`
     ).join('');
 }
-
 
 document.addEventListener('DOMContentLoaded', () => {
     loadUsers();

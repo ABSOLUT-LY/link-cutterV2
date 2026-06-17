@@ -98,6 +98,22 @@ class DBHelper:
             raise RuntimeError("База данных не инициализирована.")
         return await self.pool.execute("UPDATE links SET clicks = clicks + 1 WHERE short_code = $1", short_code)
         
+    #deleters
+    async def Delete_user_link(self, user_id: str, short_code:str):    
+        if not self.pool:
+            raise RuntimeError("База данных не инициализирована.")
+        
+        result = await self.pool.fetchrow(
+            "SELECT short_code FROM links WHERE user_id = $1 AND short_code = $2", 
+            user_id, short_code
+        )
+        if not result:
+            raise ValueError("Ссылка не найдена")
+        
+        return await self.pool.execute("DELETE FROM links WHERE user_id = $1 AND short_code = $2", user_id, short_code)
+
+
+        
     #Validate heplers
     async def uniqueness_original_link_check(self, link_foreign: str) -> bool:
         # get all urls and validate uniqueness

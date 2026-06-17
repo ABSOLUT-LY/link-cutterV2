@@ -50,6 +50,16 @@
             </div>
         </section>
 
+        <!-- НОВЫЙ БЛОК: УДАЛЕНИЕ ССЫЛКИ -->
+        <section class="card">
+            <h2>🗑️ Удаление ссылки</h2>
+            <div class="input-group">
+                <input type="text" id="delete_link_user" placeholder="ID пользователя">
+                <input type="text" id="delete_link_code" placeholder="Короткий код (abc123)">
+                <button onclick="deleteLink()" style="background-color:#e67e22;">Удалить ссылку</button>
+            </div>
+        </section>
+
         <div id="result-container" class="result-container hidden">
             <h3>Результат:</h3>
             <div id="result"></div>
