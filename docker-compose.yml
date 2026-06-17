@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    container_name: link_cutter_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: cutter_links
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    
+  link_service:
+    build: ./link_service 
+    container_name: link_service
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: cutter_links
+      USER_SERVICE_URL: http://user_service:8001
+    depends_on:
+      db:
+        condition: service_healthy
+      user_service:
+        condition: service_started
+    volumes:
+      - ./link_service:/app/link_service
+
+  user_service:
+    build: ./user_service 
+    container_name: user_service
+    restart: always
+    ports:
+      - "8001:8001"
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: cutter_links
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./user_service:/app/user_service 
+    
+  frontend:
+    build: ./frontend          
+    container_name: frontend
+    ports:
+      - "8004:80"
+    environment:
+    - USER_SERVICE_URL=http://user_service:8001
+    - LINK_SERVICE_URL=http://link_service:8000
+    depends_on:
+      - user_service
+      - link_service
+
+
+volumes:
+   postgres_data:
+

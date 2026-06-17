@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link Cutter</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🌐 Link Cutter</h1>
+
+        <div class="card">
+            <h2>👥 Пользователи</h2>
+            <div id="users-list" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;">
+                <span style="color:#999;">Загрузка...</span>
+            </div>
+        </div>
+
+        <section class="card">
+            <h2>➕ Регистрация пользователя</h2>
+            <div class="input-group">
+                <input type="text" id="user_id" placeholder="Введите ID пользователя">
+                <button onclick="createUser()">Создать</button>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>🗑️ Удаление пользователя</h2>
+            <div class="input-group">
+                <input type="text" id="delete_user_id" placeholder="ID пользователя">
+                <button onclick="deleteUser()" style="background-color:#e74c3c;">Удалить</button>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>✂️ Сокращение ссылки</h2>
+            <div class="input-group vertical">
+                <input type="text" id="link_user" placeholder="ID пользователя">
+                <input type="url" id="original_url" placeholder="Длинная ссылка (https://...)">
+                <button onclick="createLink()">Сократить</button>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>📋 Список ссылок пользователя</h2>
+            <div class="input-group">
+                <input type="text" id="list_user" placeholder="ID пользователя">
+                <button onclick="listLinks()">Показать</button>
+            </div>
+        </section>
+
+        <div id="result-container" class="result-container hidden">
+            <h3>Результат:</h3>
+            <div id="result"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
