@@ -82,16 +82,16 @@ class DBHelper:
     async def Add_user_link(self, user_id: str, original_link:str):
         if not self.pool:
             raise RuntimeError("База данных не инициализирована.")
-        is_unique = await self.uniqueness_original_link_check(original_link)
-        if (is_unique):
+        # is_unique = await self.uniqueness_original_link_check(original_link)
+        # if (is_unique):
+        short_code = await self.cutter.generate_short_code()
+        while (await self.uniqueness_short_code(short_code) == False):
             short_code = await self.cutter.generate_short_code()
-            while (await self.uniqueness_short_code(short_code) == False):
-                short_code = await self.cutter.generate_short_code()
-            await self.pool.execute("INSERT INTO links (short_code, original_url, user_id) VALUES ($1,$2,$3)", short_code, original_link, user_id)
-            return short_code
-        else:
-            existing_code = await self.get_short_code_for_user(original_link)
-            return existing_code
+        await self.pool.execute("INSERT INTO links (short_code, original_url, user_id) VALUES ($1,$2,$3)", short_code, original_link, user_id)
+        return short_code
+        # else:
+        #     existing_code = await self.get_short_code_for_user(original_link)
+        #     return existing_code
 
     async def update_clicks(self, short_code:str):
         if not self.pool:
