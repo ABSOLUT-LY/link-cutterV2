@@ -34,6 +34,31 @@ class DBHelper:
             CREATE INDEX IF NOT EXISTS idx_links_user_id ON links(user_id)
         """)
 
+    #init test db
+    async def init_test_db(self):
+        load_dotenv(".env.test")
+        self.pool = await asyncpg.create_pool(
+            host=os.getenv("DB_HOST", "localhost"),
+            port=os.getenv("DB_PORT", "5433"),
+            user=os.getenv("DB_USER", "postgres"),
+            password=os.getenv("DB_PASSWORD"),
+            database=os.getenv("DB_NAME", "cutter_links"),
+        )
+        #create links
+        await self.pool.execute("""
+            CREATE TABLE IF NOT EXISTS links(
+                short_code TEXT PRIMARY KEY,
+                original_url TEXT NOT NULL,
+                user_id TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                clicks INTEGER DEFAULT 0
+            )
+        """)
+        #index for index
+        await self.pool.execute("""
+            CREATE INDEX IF NOT EXISTS idx_links_user_id ON links(user_id)
+        """)
+
     #getters
     async def get_user_original_urls(self, user_id: str):
         if not self.pool:
