@@ -1,6 +1,6 @@
-const USER_API = "http://192.168.3.124:8001";
-const LINK_API = "http://192.168.3.124:8000";
-const BASE_URL = "http://192.168.3.124:8000";
+const USER_API = "http://138.124.99.135:8001";
+const LINK_API = "http://138.124.99.135:8004";
+const BASE_URL = "http://138.124.99.135:8004";
 
 function showResult(text) {
     const container = document.getElementById('result-container');

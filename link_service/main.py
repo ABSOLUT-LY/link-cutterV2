@@ -34,7 +34,7 @@ app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://192.168.3.124:8004"],
+    allow_origins=["http://138.124.99.135:8005"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
