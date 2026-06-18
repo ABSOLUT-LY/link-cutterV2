@@ -9,5 +9,5 @@ class LinkCutter:
         alphabet: str = string.ascii_letters + string.digits
         return ''.join(secrets.choice(alphabet) for _ in range(self.lenght))
         
-    async def set_lenght(self, lenght: int) -> None:
+    async def set_length(self, lenght: int) -> None:
         self.lenght = lenght
