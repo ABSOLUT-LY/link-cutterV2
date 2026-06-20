@@ -142,6 +142,20 @@ class DBHelper:
     
         return await self.pool.execute("DELETE FROM links WHERE original_url=$1 AND user_id = $2",original_link, user_id)
         
+    async def delete_user_link_by_code(self, user_id: str, short_code: str):
+        if not self.pool:
+            raise RuntimeError("База данных не инициализирована.")
+        row = await self.pool.fetchrow(
+            "SELECT original_url FROM links WHERE user_id = $1 AND short_code = $2",
+            user_id, short_code
+        )
+        if not row:
+            raise ValueError("Ссылка не найдена")
+        return await self.pool.execute(
+            "DELETE FROM links WHERE user_id = $1 AND short_code = $2",
+            user_id, short_code
+        )
+        
     #Validate heplers
     async def uniqueness_original_link_check(self, link_foreign: str) -> bool:
         # get all urls and validate uniqueness

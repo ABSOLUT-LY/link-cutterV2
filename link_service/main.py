@@ -182,6 +182,26 @@ async def delete_user_link(user_id: str, original_url:str, db :DBHelper = Depend
     )
     
 
+@app.delete("/user/{user_id}/url/{short_code}")
+async def delete_user_link_by_code(
+    user_id: str,
+    short_code: str,
+    db: DBHelper = Depends(get_db),
+    user_service_url: str = Depends(get_user_service_url)
+):
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.get(f"{user_service_url}/user/{user_id}")
+            if response.status_code == 404:
+                raise HTTPException(status_code=404, detail="User not found")
+            response.raise_for_status()
+        except httpx.RequestError:
+            raise HTTPException(status_code=503, detail="User service unavailable")
+
+
+    await db.delete_user_link_by_code(user_id, short_code)
+    return JSONResponse(content={"message": "Link deleted"}, status_code=200)
+
 # functions for exceptions
 # funtion for falue error
 # @app.exception_handler(ValueError)

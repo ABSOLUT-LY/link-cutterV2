@@ -37,7 +37,9 @@ async def test_add_link():
     
     # Очистка
     await db.delete_user_link(user_id,original_link=original_url)
-
+    if db.pool is not None:
+        await db.pool.close()
+        
 @pytest.mark.asyncio
 async def test_get_user_links():
     db = DBHelper()
@@ -59,7 +61,8 @@ async def test_get_user_links():
     
     for url in urls:
         await db.delete_user_link(user_id, original_link=url)
-
+    if db.pool is not None:
+        await db.pool.close()
 
 @pytest.mark.asyncio
 async def test_update_clicks():
@@ -81,7 +84,8 @@ async def test_update_clicks():
     
     # Очистка
     await db.delete_user_link(user_id,original_link=original_url)
-
+    if db.pool is not None:
+        await db.pool.close()
 @pytest.mark.asyncio
 async def test_get_original_url_by_short_code():
     db = DBHelper()
@@ -101,4 +105,5 @@ async def test_get_original_url_by_short_code():
     
     # Очистка
     await db.delete_user_link(user_id,original_link=original_url)
-
+    if db.pool is not None:
+        await db.pool.close()
