@@ -3,85 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Link Cutter</title>
+    <title>Link Cutter — Панель управления</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <!-- Шапка -->
-        <header class="header">
-            <h1>🔗 Link Cutter</h1>
-            <p class="subtitle">Сокращай ссылки и управляй ими</p>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="brand">
+                <div class="brand-text">
+                    <h1>Link Cutter</h1>
+                    <span class="badge-status">API подключено</span>
+                </div>
+            </div>
+            <p class="subtitle">Интерфейс для сокращения ссылок, управления пользователями и просмотра статистики переходов.</p>
         </header>
 
-        <!-- Блок пользователей -->
-        <section class="card">
-            <div class="card-header">
-                <h2>👥 Пользователи</h2>
-                <span class="badge" id="users-count">0</span>
-            </div>
-            <div id="users-list" class="users-grid">
-                <span class="placeholder">Загрузка...</span>
-            </div>
-        </section>
+        <!-- Main Workspace -->
+        <main class="workspace-grid">
+            
+            <!-- Left Column: Users Control Center -->
+            <aside class="workspace-column users-column">
+                
+                <!-- Active User Status Card -->
+                <div class="card active-user-card" id="active-user-banner">
+                    <div class="active-user-info">
+                        <span class="active-user-dot"></span>
+                        <div>
+                            <div class="banner-label">Активный сеанс</div>
+                            <h3 id="active-user-name">Выберите пользователя</h3>
+                        </div>
+                    </div>
+                    <button class="btn-clear-session hidden" id="btn-clear" onclick="clearActiveUser()">Сбросить</button>
+                </div>
 
-        <!-- Управление пользователями -->
-        <div class="row">
-            <section class="card col">
-                <h2>➕ Создать</h2>
-                <div class="input-group">
-                    <input type="text" id="user_id" placeholder="ID пользователя">
-                    <button onclick="createUser()">Создать</button>
+                <!-- Users List Card -->
+                <section class="card">
+                    <div class="card-header">
+                        <h2>Пользователи</h2>
+                        <span class="badge-count" id="users-count">0</span>
+                    </div>
+                    <p class="card-description">Выберите пользователя в списке, чтобы автоматически подставить его ID во все формы.</p>
+                    <div class="users-scroll-container">
+                        <div id="users-list" class="users-grid">
+                            <span class="placeholder-loading">Загрузка списка пользователей...</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Create User Card -->
+                <section class="card">
+                    <h2>Регистрация пользователя</h2>
+                    <div class="form-group">
+                        <div class="input-wrapper">
+                            <input type="text" id="user_id" placeholder=" " required autocomplete="off">
+                            <label for="user_id">ID пользователя</label>
+                        </div>
+                        <button onclick="createUser()" class="btn btn-primary">Создать</button>
+                    </div>
+                </section>
+
+                <!-- Delete User Card -->
+                <section class="card">
+                    <h2>Удаление пользователя</h2>
+                    <div class="form-group">
+                        <div class="input-wrapper">
+                            <input type="text" id="delete_user_id" placeholder=" " autocomplete="off">
+                            <label for="delete_user_id">ID пользователя</label>
+                        </div>
+                        <button onclick="deleteUser()" class="btn btn-danger">Удалить</button>
+                    </div>
+                </section>
+
+            </aside>
+
+            <!-- Right Column: Shortener & Analytics -->
+            <section class="workspace-column main-column">
+                
+                <!-- Shorten Link Card -->
+                <div class="card card-hero">
+                    <h2>Сокращение ссылки</h2>
+                    <div class="vertical-form">
+                        <div class="form-row">
+                            <div class="input-wrapper input-user-id">
+                                <input type="text" id="link_user" placeholder=" " autocomplete="off">
+                                <label for="link_user">ID пользователя (владелец)</label>
+                            </div>
+                        </div>
+                        <div class="form-row flex-row">
+                            <div class="input-wrapper flex-grow">
+                                <input type="url" id="original_url" placeholder=" " autocomplete="off">
+                                <label for="original_url">Длинная ссылка (https://...)</label>
+                            </div>
+                            <button onclick="createLink()" class="btn btn-primary">Сократить</button>
+                        </div>
+                    </div>
                 </div>
-            </section>
-            <section class="card col">
-                <h2>🗑️ Удалить</h2>
-                <div class="input-group">
-                    <input type="text" id="delete_user_id" placeholder="ID пользователя">
-                    <button onclick="deleteUser()" class="danger">Удалить</button>
+
+                <!-- Links List Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Список ссылок пользователя</h2>
+                    </div>
+                    <div class="form-group">
+                        <div class="input-wrapper">
+                            <input type="text" id="list_user" placeholder=" " autocomplete="off">
+                            <label for="list_user">ID пользователя</label>
+                        </div>
+                        <button onclick="listLinks()" class="btn btn-secondary">Показать</button>
+                    </div>
+
+                    <!-- Output Area for User's links -->
+                    <div id="links-list-container" class="links-list-container hidden">
+                        <div id="links-list-target"></div>
+                    </div>
                 </div>
+
+                <!-- Delete Link Card -->
+                <div class="card">
+                    <h2>Удаление ссылки</h2>
+                    <div class="form-group-triple">
+                        <div class="input-wrapper">
+                            <input type="text" id="delete_link_user" placeholder=" " autocomplete="off">
+                            <label for="delete_link_user">ID пользователя</label>
+                        </div>
+                        <div class="input-wrapper">
+                            <input type="text" id="delete_link_code" placeholder=" " autocomplete="off">
+                            <label for="delete_link_code">Код ссылки (short_code)</label>
+                        </div>
+                        <button onclick="deleteLink()" class="btn btn-warning">Удалить</button>
+                    </div>
+                </div>
+
+                <!-- Statistics Finder Card -->
+                <div class="card">
+                    <h2>Статистика переходов</h2>
+                    <p class="card-description">Позволяет узнать точное количество переходов по короткому коду.</p>
+                    <div class="form-group">
+                        <div class="input-wrapper">
+                            <input type="text" id="stats_code" placeholder=" " autocomplete="off">
+                            <label for="stats_code">Короткий код (например, abc123)</label>
+                        </div>
+                        <button onclick="getClicks()" class="btn btn-info">Проверить</button>
+                    </div>
+                </div>
+
             </section>
+        </main>
+
+        <!-- Result Container / Sleek Modal Overlay or Card -->
+        <div id="result-container" class="result-modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Результат операции</h3>
+                    <button class="modal-close" onclick="closeResult()">×</button>
+                </div>
+                <div class="modal-body" id="result"></div>
+            </div>
         </div>
 
-        <!-- Сокращение ссылки -->
-        <section class="card">
-            <h2>✂️ Сократить ссылку</h2>
-            <div class="input-group vertical">
-                <input type="text" id="link_user" placeholder="ID пользователя">
-                <div class="url-input-wrapper">
-                    <input type="url" id="original_url" placeholder="Вставьте длинную ссылку">
-                    <button onclick="createLink()">Сократить</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- Управление ссылками -->
-        <div class="row">
-            <section class="card col">
-                <h2>📋 Список ссылок</h2>
-                <div class="input-group">
-                    <input type="text" id="list_user" placeholder="ID пользователя">
-                    <button onclick="listLinks()">Показать</button>
-                </div>
-            </section>
-            <section class="card col">
-                <h2>📊 Статистика</h2>
-                <div class="input-group">
-                    <input type="text" id="stats_code" placeholder="Короткий код">
-                    <button onclick="getClicks()">Клики</button>
-                </div>
-            </section>
-        </div>
-
-        <!-- Результат -->
-        <div id="result-container" class="result-container hidden">
-            <div class="result-header">
-                <h3>📌 Результат</h3>
-                <button class="close-btn" onclick="closeResult()">✕</button>
-            </div>
-            <div id="result"></div>
-        </div>
+        <footer class="app-footer">
+            <p>© 2026 Link Cutter. Все права защищены.</p>
+        </footer>
     </div>
+
+    <!-- Notification Toast System -->
+    <div class="toast-container" id="toast-container"></div>
 
     <script src="script.js"></script>
 </body>
