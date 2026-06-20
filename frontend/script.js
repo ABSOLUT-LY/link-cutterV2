@@ -10,9 +10,18 @@ function showResult(text) {
     }
 }
 
+function closeResult() {
+    document.getElementById('result-container').classList.add('hidden');
+}
 
+function updateUsersCount(count) {
+    const badge = document.getElementById('users-count');
+    if (badge) badge.textContent = count;
+}
+
+// ===== ПОЛЬЗОВАТЕЛИ =====
 async function createUser() {
-    const id = document.getElementById('user_id').value;
+    const id = document.getElementById('user_id').value.trim();
     if (!id) return alert("Введите ID пользователя");
 
     try {
@@ -34,13 +43,12 @@ async function createUser() {
             showResult(`❌ Ошибка ${res.status}: ${text || 'Неизвестная ошибка'}`);
         }
     } catch (err) {
-        showResult(`💥 Ошибка сети: не удалось связаться с сервером (${err.message})`);
+        showResult(`💥 Ошибка сети: ${err.message}`);
     }
 }
 
-
 async function deleteUser() {
-    const id = document.getElementById('delete_user_id').value;
+    const id = document.getElementById('delete_user_id').value.trim();
     if (!id) return alert("Введите ID пользователя");
 
     try {
@@ -57,14 +65,14 @@ async function deleteUser() {
             showResult(`❌ Ошибка ${res.status}: ${text}`);
         }
     } catch (err) {
-        showResult(`💥 Ошибка сети: не удалось связаться с сервером (${err.message})`);
+        showResult(`💥 Ошибка сети: ${err.message}`);
     }
 }
 
-
+// ===== ССЫЛКИ =====
 async function createLink() {
-    const user = document.getElementById('link_user').value;
-    const url = document.getElementById('original_url').value;
+    const user = document.getElementById('link_user').value.trim();
+    const url = document.getElementById('original_url').value.trim();
     if (!user || !url) return alert("Заполните оба поля");
 
     try {
@@ -85,13 +93,12 @@ async function createLink() {
             showResult(`❌ Ошибка ${res.status}: ${text}`);
         }
     } catch (err) {
-        showResult(`💥 Ошибка сети: не удалось связаться с сервером (${err.message})`);
+        showResult(`💥 Ошибка сети: ${err.message}`);
     }
 }
 
-
 async function listLinks() {
-    const user = document.getElementById('list_user').value;
+    const user = document.getElementById('list_user').value.trim();
     if (!user) return alert("Введите ID пользователя");
 
     try {
@@ -104,12 +111,22 @@ async function listLinks() {
                 showResult(`📂 У пользователя "${user}" пока нет ссылок.`);
                 return;
             }
-            let html = `<h4>Ссылки пользователя "${user}":</h4><ul style="list-style:none;padding:0;">`;
+            let html = `<h4>Ссылки пользователя "${user}":</h4><ul class="links-list">`;
             links.forEach(link => {
-                html += `<li style="background:#f1f5f9;padding:10px;margin:8px 0;border-radius:8px;">
-                            🔗 <strong>${link.short_code}</strong> 
-                            → <a href="${link.original_url}" target="_blank" style="color:#3498db;word-break:break-all;">${link.original_url.slice(0,60)}...</a>
-                         </li>`;
+                const shortUrl = `${LINK_API}/${link.short_code}`;
+                html += `
+                    <li>
+                        <div class="link-info">
+                            🔗 <strong>${link.short_code}</strong>
+                            <br>
+                            → <a href="${link.original_url}" target="_blank">${link.original_url.slice(0, 60)}...</a>
+                        </div>
+                        <div class="link-actions">
+                            <button class="stats-btn" onclick="getClicksByCode('${link.short_code}')">📊</button>
+                            <button class="delete-btn" onclick="deleteLink('${user}', '${link.short_code}')">🗑️</button>
+                        </div>
+                    </li>
+                `;
             });
             html += `</ul>`;
             showResult(html);
@@ -121,7 +138,50 @@ async function listLinks() {
     }
 }
 
+// ===== СТАТИСТИКА =====
+async function getClicks() {
+    const code = document.getElementById('stats_code').value.trim();
+    if (!code) return alert("Введите короткий код");
+    await getClicksByCode(code);
+}
 
+async function getClicksByCode(code) {
+    try {
+        const res = await fetch(`${LINK_API}/short_code/${code}/clicks`);
+        const data = await res.json();
+
+        if (res.status === 200) {
+            showResult(`📊 Статистика по ссылке "${data.short_code}":\n\n👉 Переходов: ${data.clicks}`);
+        } else {
+            showResult(`❌ ${data.detail || 'Ссылка не найдена'}`);
+        }
+    } catch (err) {
+        showResult(`💥 Ошибка сети: ${err.message}`);
+    }
+}
+
+// ===== УДАЛЕНИЕ ССЫЛКИ =====
+async function deleteLink(user, code) {
+    if (!confirm(`Удалить ссылку "${code}"?`)) return;
+
+    try {
+        const res = await fetch(`${LINK_API}/user/${user}/url/${code}`, { method: 'DELETE' });
+        const data = await res.json();
+
+        if (res.status === 200) {
+            showResult(`✅ Ссылка "${code}" удалена!`);
+            // Обновляем список, если он открыт
+            const listUser = document.getElementById('list_user').value.trim();
+            if (listUser === user) await listLinks();
+        } else {
+            showResult(`❌ ${data.detail || 'Ошибка при удалении'}`);
+        }
+    } catch (err) {
+        showResult(`💥 Ошибка сети: ${err.message}`);
+    }
+}
+
+// ===== ПОЛЬЗОВАТЕЛИ (загрузка) =====
 async function loadUsers() {
     try {
         const res = await fetch(`${USER_API}/users`);
@@ -137,18 +197,20 @@ async function loadUsers() {
 function renderUsers(users) {
     const container = document.getElementById('users-list');
     if (!container) return;
-    
+
+    updateUsersCount(users.length);
+
     if (users.length === 0) {
-        container.innerHTML = '<p style="color:#888;">Пользователей пока нет</p>';
+        container.innerHTML = '<span class="placeholder">Пользователей пока нет</span>';
         return;
     }
-    
-    container.innerHTML = users.map(u => 
-        `<span class="user-tag">👤 ${u.user_id} <small style="color:#999;">(${u.created_at?.slice(0,10)})</small></span>`
+
+    container.innerHTML = users.map(u =>
+        `<span class="user-tag">👤 ${u.user_id} <small>(${u.created_at?.slice(0, 10)})</small></span>`
     ).join('');
 }
 
-
+// ===== ИНИЦИАЛИЗАЦИЯ =====
 document.addEventListener('DOMContentLoaded', () => {
     loadUsers();
 });
