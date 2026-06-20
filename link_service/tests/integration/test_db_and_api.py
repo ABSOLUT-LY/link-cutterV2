@@ -2,7 +2,7 @@ import pytest
 from dotenv import load_dotenv
 from link_service.Helpers.DBHelper import DBHelper
 
-load_dotenv()
+load_dotenv(".env.test")
 
 @pytest.mark.asyncio
 async def test_db_connection():
@@ -36,14 +36,7 @@ async def test_add_link():
     assert code_check is not None
     
     # Очистка
-    if not db.pool:
-        raise RuntimeError("База данных не инициализирована.")
-    
-    await db.pool.execute(
-        "DELETE FROM links WHERE short_code = $1", 
-        short_code
-    )
-    await db.pool.close()
+    await db.delete_user_link(user_id,original_link=original_url)
 
 @pytest.mark.asyncio
 async def test_get_user_links():
@@ -51,7 +44,7 @@ async def test_get_user_links():
     await db.init_test_db()
     
     user_id = "test_get_user_link"
-    urls = ["https://example.com/integration/1", "https://example.com/integration/1"]
+    urls = ["https://example.com/integration/1", "https://example.com/integration/2"]
     
     codes : list[str] = []
     for url in urls:
@@ -64,6 +57,10 @@ async def test_get_user_links():
     assert len(original_urls) == len(urls)
     assert len(short_urls) == len(codes)
     
+    for url in urls:
+        await db.delete_user_link(user_id, original_link=url)
+
+
 @pytest.mark.asyncio
 async def test_update_clicks():
     db = DBHelper()
@@ -79,22 +76,11 @@ async def test_update_clicks():
     await db.update_clicks(short_code)
     
     # Проверяем, что клики увеличились
-    if not db.pool:
-        raise RuntimeError("База данных не инициализирована.")
-    
-    row = await db.pool.fetchrow(
-        "SELECT clicks FROM links WHERE short_code = $1", 
-        short_code
-    )
-    assert row is not None
-    assert row["clicks"] == 2
+    clicks = await db.get_clicks_for_short_code(short_code)
+    assert clicks == 2
     
     # Очистка
-    await db.pool.execute(
-        "DELETE FROM links WHERE short_code = $1", 
-        short_code
-    )
-    await db.pool.close() 
+    await db.delete_user_link(user_id,original_link=original_url)
 
 @pytest.mark.asyncio
 async def test_get_original_url_by_short_code():
@@ -114,11 +100,5 @@ async def test_get_original_url_by_short_code():
     assert result is None
     
     # Очистка
-    if not db.pool:
-        raise RuntimeError("База данных не инициализирована.")
-    
-    await db.pool.execute(
-        "DELETE FROM links WHERE short_code = $1", 
-        short_code
-    )
-    await db.pool.close()
+    await db.delete_user_link(user_id,original_link=original_url)
+

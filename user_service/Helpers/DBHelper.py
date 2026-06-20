@@ -25,6 +25,24 @@ class DBHelper:
             )
         """)
 
+    #init test db
+    async def init_test_db(self):
+        load_dotenv(".env.test")
+        self.pool = await asyncpg.create_pool(
+            host=os.getenv("DB_HOST", "localhost"),
+            port=os.getenv("DB_PORT", "5433"),
+            user=os.getenv("DB_USER", "postgres"),
+            password=os.getenv("DB_PASSWORD"),
+            database=os.getenv("DB_NAME", "cutter_links"),
+        )
+        #create users
+        await self.pool.execute("""
+            CREATE TABLE IF NOT EXISTS users(
+                user_id TEXT PRIMARY KEY,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
     #getters
     async def get_user_info(self, user_id: str):
         if not self.pool:
