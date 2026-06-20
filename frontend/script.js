@@ -1,7 +1,7 @@
 // ===== CONFIGURATION =====
-const USER_API = "http://192.168.3.124:8001";
-const LINK_API = "http://192.168.3.124:8008";
-const BASE_LINK = "http://192.168.3.124:8008";
+const USER_API = "http://138.124.99.135:8001";
+const LINK_API = "http://138.124.99.135:8008";
+const BASE_LINK = "http://138.124.99.135:8008";
 
 let activeUserId = null;
 
