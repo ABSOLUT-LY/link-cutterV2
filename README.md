@@ -1,7 +1,7 @@
 # link-cutter
 
 Поднял прод на VPS в docker:
-http://138.124.99.135:8005/
+http://138.124.99.135:8004/
 
 <img width="699" height="951" alt="image" src="https://github.com/user-attachments/assets/4f9f1ce8-ff23-4a0c-9fed-d4054b727408" />
 
