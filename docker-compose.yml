@@ -19,24 +19,6 @@ services:
       timeout: 5s
       retries: 5
 
-  db_test:
-    image: postgres:15
-    container_name: link_cutter_db_test
-    restart: always
-    env_file:
-      - .env.test
-    environment:
-      POSTGRES_USER: ${DB_TEST_USER}
-      POSTGRES_PASSWORD: ${DB_TEST_PASSWORD}
-      POSTGRES_DB: ${DB_TEST_NAME}
-    ports:
-      - "5433:5432"
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${DB_TEST_USER}" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
   link_service:
     build: ./link_service
     container_name: link_service

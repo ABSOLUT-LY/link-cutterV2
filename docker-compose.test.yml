@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  db_test:
+    image: postgres:15
+    container_name: link_cutter_db_test
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: testpass
+      POSTGRES_DB: test_db
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  test_runner:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    environment:
+      DB_HOST: db_test
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: testpass
+      DB_NAME: test_db
+    depends_on:
+      db_test:
+        condition: service_healthy
+    volumes:
+      - ./user_service:/app/user_service
+      - ./link_service:/app/link_service
