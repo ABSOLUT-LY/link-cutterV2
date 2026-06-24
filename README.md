@@ -9,6 +9,8 @@ test CI|CD - Работает!
 
 Документация - http://138.124.99.135:8008/docs
 
+<img width="1589" height="839" alt="image" src="https://github.com/user-attachments/assets/949522e0-eb60-4120-9db9-454e4b4a2ab8" />
+
 Архитектура
 
 ```mermaid
