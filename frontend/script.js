@@ -227,7 +227,7 @@ async function createLink() {
                     <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px;">Оригинальный URL:</div>
                     <div style="font-size: 0.85rem; color: var(--text-secondary); word-break: break-all;">${url}</div>
                     
-                    <button class="btn btn-secondary" onclick="navigator.clipboard.writeText('${shortUrl}').then(() => showToast('Ссылка скопирована!'))" style="margin-top: 12px; width: 100%; padding: 8px;">
+                    <button class="btn btn-secondary" onclick="copyToClipboard('${shortUrl}')" style="margin-top: 12px; width: 100%; padding: 8px;">
                         Скопировать ссылку
                     </button>
                 </div>
@@ -340,11 +340,43 @@ async function fetchClicksInBackground(shortCode) {
 }
 
 function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(() => {
-        showToast("Ссылка скопирована", "success");
-    }).catch(err => {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+            showToast("Ссылка скопирована", "success");
+        }).catch(() => {
+            fallbackCopyToClipboard(text);
+        });
+    } else {
+        fallbackCopyToClipboard(text);
+    }
+}
+
+function fallbackCopyToClipboard(text) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    
+    // Avoid scrolling to bottom
+    textArea.style.top = "0";
+    textArea.style.left = "0";
+    textArea.style.position = "fixed";
+    textArea.style.opacity = "0";
+
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+
+    try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+            showToast("Ссылка скопирована", "success");
+        } else {
+            showToast("Не удалось скопировать", "error");
+        }
+    } catch (err) {
         showToast("Не удалось скопировать", "error");
-    });
+    }
+
+    document.body.removeChild(textArea);
 }
 
 // ===== MANUAL STATISTICS CHECKER =====
@@ -410,7 +442,7 @@ async function deleteLinkByCode(user, shortCode) {
     }
 
     try {
-        const res = await fetch(`${LINK_API}/user/${user}/url/${shortCode}`, { method: 'DELETE' });
+        const res = await fetch(`${LINK_API}/user/${user}/short_code/${shortCode}`, { method: 'DELETE' });
         const text = await res.text();
 
         if (res.status === 200) {

@@ -10,31 +10,31 @@
     --text-primary: #2c3e50;
     --text-secondary: #4a5568;
     --text-muted: #718096;
-    
+
     /* Accents & States */
     --primary: #3498db;
     --primary-hover: #2980b9;
     --primary-glow: rgba(52, 152, 219, 0.15);
-    
+
     --success: #2ecc71;
     --success-bg: #e8f8f5;
     --success-border: #a3e4d7;
-    
+
     --danger: #e74c3c;
     --danger-hover: #c0392b;
     --danger-bg: #fde8e7;
     --danger-border: #f5c2c1;
-    
+
     --warning: #e67e22;
     --warning-hover: #d35400;
     --warning-bg: #fdf2e9;
     --warning-border: #f5cba7;
-    
+
     --info: #9b59b6;
     --info-hover: #8e44ad;
     --info-bg: #f5eef8;
     --info-border: #ebdef0;
-    
+
     /* System Properties */
     --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     --font-code: 'Fira Code', 'Courier New', monospace;
@@ -123,7 +123,7 @@ body {
 /* ===== DASHBOARD GRID ===== */
 .workspace-grid {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 24px;
     align-items: start;
     flex-grow: 1;
@@ -131,7 +131,7 @@ body {
 
 @media (min-width: 900px) {
     .workspace-grid {
-        grid-template-columns: 350px 1fr;
+        grid-template-columns: 350px minmax(0, 1fr);
     }
 }
 
@@ -139,6 +139,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 20px;
+    min-width: 0;
 }
 
 /* ===== CARDS ===== */
@@ -300,8 +301,8 @@ body {
     padding-bottom: 6px;
 }
 
-.input-wrapper input:focus + label,
-.input-wrapper input:not(:placeholder-shown) + label {
+.input-wrapper input:focus+label,
+.input-wrapper input:not(:placeholder-shown)+label {
     top: 12px;
     font-size: 0.7rem;
     color: var(--primary);
@@ -571,10 +572,8 @@ body {
     color: var(--text-secondary);
     font-size: 0.8rem;
     word-break: break-all;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    max-width: 100%;
+    overflow-wrap: break-word;
+    white-space: normal;
 }
 
 .link-actions-group {
@@ -699,8 +698,13 @@ body {
 }
 
 @keyframes modalFadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 /* ===== TOAST NOTIFICATION SYSTEM ===== */
@@ -740,12 +744,23 @@ body {
 }
 
 @keyframes toastSlideIn {
-    from { transform: translateY(20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
 @keyframes toastFadeOut {
-    to { opacity: 0; transform: translateY(-10px); visibility: hidden; }
+    to {
+        opacity: 0;
+        transform: translateY(-10px);
+        visibility: hidden;
+    }
 }
 
 /* ===== FOOTER ===== */
@@ -767,25 +782,86 @@ body {
     .app-container {
         padding: 16px 12px;
     }
-    
+
     .app-header {
         margin-bottom: 24px;
     }
-    
+
     .brand-text h1 {
         font-size: 1.6rem;
     }
-    
+
     .card {
         padding: 18px;
     }
-    
+
     .form-group {
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .form-group button {
         width: 100%;
     }
+}
+
+/* ===== PREVENT OVERFLOW & WRAP LONG LINKS ===== */
+.original-url-text,
+.link-details,
+.modal-body,
+.input-wrapper input,
+.short-url-link {
+    word-break: break-all;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    max-width: 100%;
+}
+
+/* Для ссылок в списке */
+.link-details {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.link-row-short {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.short-url-link {
+    word-break: break-all;
+    overflow-wrap: break-word;
+    max-width: 100%;
+}
+
+/* Для модального окна */
+.modal-body {
+    word-break: break-all;
+    overflow-wrap: break-word;
+    max-width: 100%;
+}
+
+/* Для всех полей ввода */
+.input-wrapper input {
+    word-break: break-all;
+    overflow-wrap: break-word;
+}
+
+/* Для контейнеров с ссылками */
+.links-list-container {
+    overflow-x: hidden;
+}
+
+.link-item {
+    overflow: hidden;
+    max-width: 100%;
+}
+
+/* Дополнительно для очень длинных слов */
+* {
+    overflow-wrap: break-word;
 }
