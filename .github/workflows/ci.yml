@@ -71,9 +71,9 @@ jobs:
       - name: Deploy to VPS
         run: |
           ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
-      	    export DB_PASSWORD="${{ secrets.PROD_DB_PASSWORD }}"
-      	    export POSTGRES_USER="${{ secrets.PROD_POSTGRES_USER }}"
-      	    export POSTGRES_DB="${{ secrets.PROD_POSTGRES_DB }}"
+            export DB_PASSWORD="${{ secrets.PROD_DB_PASSWORD }}"
+            export POSTGRES_USER="${{ secrets.PROD_POSTGRES_USER }}"
+            export POSTGRES_DB="${{ secrets.PROD_POSTGRES_DB }}"
             cd /home/root/link-cutterV2
             git pull origin main
             docker compose down
