@@ -5,7 +5,7 @@ http://138.124.99.135:8004/
 
 <img width="1075" height="875" alt="image" src="https://github.com/user-attachments/assets/e63935d4-03d7-4c1e-ad8c-0339176b4de8" />
 
-test CI|CD - Работает!
+test CI/CD - Работает!
 
 Документация - http://138.124.99.135:8008/docs
 
