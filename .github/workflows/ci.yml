@@ -74,7 +74,7 @@ jobs:
             export DB_PASSWORD="${{ secrets.PROD_DB_PASSWORD }}"
             export POSTGRES_USER="${{ secrets.PROD_POSTGRES_USER }}"
             export POSTGRES_DB="${{ secrets.PROD_POSTGRES_DB }}"
-            cd /home/root/link-cutterV2
+            cd /home/root/link-cutterV2_PUB-Server
             git pull origin main
             docker compose down
             docker compose up --build -d
